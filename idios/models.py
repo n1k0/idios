@@ -1,3 +1,4 @@
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
@@ -56,7 +57,10 @@ class ProfileBase(models.Model):
 def create_profile(sender, instance=None, **kwargs):
     if instance is None:
         return
-    profile, created = get_profile_model().objects.get_or_create(user=instance)
+    try:
+        profile, created = get_profile_model().objects.get_or_create(user=instance)
+    except MultipleObjectsReturned:
+        pass
 post_save.connect(create_profile, sender=User)
 
 
